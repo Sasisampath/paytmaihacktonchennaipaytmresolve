@@ -15,7 +15,7 @@ export default function Bills() {
   const [query, setQuery] = useState("");
   const normal = query.trim().toLowerCase();
   const visible = bills.filter((bill) => [
-    billNumber(bill.id), money(billTotal(bill)), bill.settlement.method, ...bill.items.map((item) => item.name),
+    billNumber(bill.id), money(billTotal(bill)), bill.settlement.method === "demo" ? "demo paid" : bill.settlement.method, ...bill.items.map((item) => item.name),
   ].some((value) => value.toLowerCase().includes(normal)));
   return <>
     <PageTitle title="Bill history" description="Find saved bills and cash or demo UPI receipts." />
@@ -28,7 +28,7 @@ export default function Bills() {
         <div className="row-end"><strong>{money(billTotal(bill))}</strong><BillPill bill={bill} /></div>
         <ChevronRight className="chevron" size={16} />
       </Link>)}
-    </div> : <Empty title={normal ? "No matching bills" : "No saved bills yet"} detail={normal ? "Try a different bill ID, amount, payment method, or product." : "Bills appear here when you save them or record a payment."} />)}
+    </div> : <Empty art={bills.length === 0 ? "empty-bills-issues.png" : undefined} title={normal ? "No matching bills" : "No saved bills yet"} detail={normal ? "Try a different bill ID, amount, payment method, or product." : "Bills appear here when you save them or record a payment."} />)}
     <DemoNote>Bill history is stored locally in this browser.</DemoNote>
   </>;
 }

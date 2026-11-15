@@ -5,6 +5,7 @@ import { AppShell } from "../components/shell";
 
 export const metadata: Metadata = {
   title: "Paytm Resolve | Merchant demo",
+  icons: { icon: "/assets/paytm-resolve/PB-logo-sdw.svg" },
   description: "Your AI teammate for billing, payments and resolution. An independent PaytmKaro hackathon prototype.",
 };
 

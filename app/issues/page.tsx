@@ -25,7 +25,7 @@ export default function Issues() {
         <i className="row-icon"><ClipboardList size={18} /></i><div className="row-body"><strong>{issue.id}</strong><small>Customer claim</small></div>
         <div className="row-end"><strong>{money(issue.claim.amount)}</strong><Pill status={lastIssueStatus(issue)} /></div><ChevronRight className="chevron" size={16} />
       </Link>)}
-    </div> : <Empty title={filter === "open" ? "No open issues" : "No closed issues"} detail={filter === "open" ? "Save a case after an unresolved payment check." : "Closed cases and their check history appear here."} icon={ClipboardList}>
+    </div> : <Empty art="empty-bills-issues.png" title={filter === "open" ? "No open issues" : "No closed issues"} detail={filter === "open" ? "Save a case after an unresolved payment check." : "Closed cases and their check history appear here."} icon={ClipboardList}>
       {filter === "open" && <ActionLink href="/check-payment" tone="secondary">Check a Payment</ActionLink>}
     </Empty>)}
   </>;

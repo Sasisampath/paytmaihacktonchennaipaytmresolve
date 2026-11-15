@@ -2,6 +2,7 @@
 
 import { ArrowDownLeft, ArrowRight, Check, ClipboardList, Clock3, Plus, ReceiptText, ScanLine, Store } from "lucide-react";
 import Link from "next/link";
+import { PaytmArt } from "../components/paytm-art";
 import { BillLabel, BillPill } from "../components/bill-ui";
 import { billTotal } from "../lib/billing";
 import { DemoNote, Pill } from "../components/ui";
@@ -29,7 +30,7 @@ export default function Home() {
         <span className="hero-art" aria-hidden="true"><span className="art-ring ring-outer" /><span className="art-ring ring-inner" /><span className="art-dot" /><span className="art-scan"><ScanLine size={70} strokeWidth={1.1} /><span className="art-check"><Check size={22} strokeWidth={2.8} /></span></span></span>
       </Link>
       <Link className="card secondary-action" href="/bills/new">
-        <span className="secondary-icon"><ReceiptText size={21} /></span>
+        <PaytmArt file="create-bill-home.png" size={53} />
         <span className="secondary-copy"><strong>Create a Bill</strong><small>Add products manually or by speaking Tamil.</small></span>
         <span className="secondary-cta"><Plus size={15} /> <span>Create Bill</span></span>
       </Link>
@@ -47,7 +48,7 @@ export default function Home() {
         {bills.length ? bills.slice(0, 2).map((bill) => <Link key={bill.id} href={`/bills/${bill.id}`} className="list-row">
           <i className="row-icon"><ReceiptText size={16} /></i><div className="row-body"><BillLabel bill={bill} /></div>
           <div className="row-end"><strong>{money(billTotal(bill))}</strong><BillPill bill={bill} /></div>
-        </Link>) : <div className="list-row home-empty"><i className="row-icon"><ReceiptText size={17} /></i><div className="row-body"><strong>No bills yet</strong><small>Saved bills will appear here.</small></div></div>}
+        </Link>) : <div className="list-row home-empty"><PaytmArt file="no-bills.png" size={38} /><div className="row-body"><strong>No bills yet</strong><small>Saved bills will appear here.</small></div></div>}
       </div>
     </section>
     <section aria-labelledby="activity-heading">

@@ -16,7 +16,12 @@ export function GET() {
 
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return errorJSON("Start the recording from the bill editor.", 403);
+  if (origin) {
+    const url = new URL(request.url);
+    // Next.js normalizes loopback hostnames in request.url. Compare the browser's actual Host.
+    const host = request.headers.get("host") ?? url.host;
+    if (origin !== `${url.protocol}//${host}`) return errorJSON("Start the recording from the bill editor.", 403);
+  }
   const key = process.env.SARVAM_API_KEY?.trim();
   if (!key) return errorJSON("Live Tamil voice is unavailable until Sarvam is configured. You can add items manually.", 503);
   const now = Date.now();

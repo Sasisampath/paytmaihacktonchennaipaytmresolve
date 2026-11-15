@@ -1,20 +1,27 @@
-import { CircleCheck, CircleHelp, Clock3, FileSearch, ShieldAlert, WifiOff } from "lucide-react";
+import { CircleHelp, WifiOff } from "lucide-react";
 import { clockTime, ledgerDate, type Claim, type Verification } from "../lib/payment";
 import { money } from "../lib/money";
+import { PaytmArt } from "./paytm-art";
 import { Pill } from "./ui";
 
-const icons = {
-  received: CircleCheck, "not-verified": FileSearch, pending: Clock3,
-  failed: ShieldAlert, unavailable: WifiOff, "more-details": CircleHelp,
+const art = {
+  received: "payment-received.png",
+  "not-verified": "payment-not-verified.png",
+  pending: "payment-pending.png",
+  failed: "payment-failed.png",
 };
 
 export function PaymentResult({ claim, verification }: { claim: Claim; verification: Verification }) {
   const { status, evidence } = verification;
-  const Icon = icons[status];
+  const Icon = status === "unavailable" ? WifiOff : CircleHelp;
   return <div className="card result-card">
     <div className={`result-top result-${status}`}>
-      <Icon size={26} /><Pill status={status} />
-      <h2>{money(claim.amount)}</h2><p>{verification.reason}</p>
+      <div className="result-heading">
+        <div><Pill status={status} /><h2>{money(claim.amount)}</h2></div>
+        {status === "unavailable" || status === "more-details" ? <Icon size={26} /> :
+          <PaytmArt file={art[status]} size={62} />}
+      </div>
+      <p>{verification.reason}</p>
     </div>
     <div className="result-content">
       <h3>Merchant evidence</h3>

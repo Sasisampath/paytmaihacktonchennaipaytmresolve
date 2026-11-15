@@ -1,8 +1,9 @@
 "use client";
 
-import { Calculator, ChevronRight, Mic, Pencil, Plus, ReceiptText, Search } from "lucide-react";
+import { Calculator, ChevronRight, Pencil, Plus, Search } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { BillLine, UnitField } from "../../../components/bill-ui";
+import { InlineVoiceBilling } from "../../../components/voice-billing";
 import { Action, ActionLink, DemoNote, Empty, ErrorMessage, Field, PageTitle, Sheet, errorText } from "../../../components/ui";
 import { billTotal, makeLine, newDraft, type Draft, type Line, type Product, type Unit } from "../../../lib/billing";
 import { editDraft } from "../../../lib/bill-store";
@@ -82,7 +83,7 @@ export default function BillEditor() {
       <Action type="button" onClick={() => { setQuery(""); openPanel("products"); }} disabled={!ready || amountOnly || busy}><Plus size={17} /> Add Product</Action>
       <Action type="button" tone="secondary" onClick={() => { setQuick(amountOnly ? rupeeInput(draft!.quickAmount!) : ""); openPanel("quick"); }} disabled={!ready || items.length > 0 || busy}><Calculator size={17} /> Quick Amount</Action>
     </div>
-    {!amountOnly && <ActionLink href="/bills/new/voice" tone="secondary" className="voice-entry full-action"><Mic size={17} /> Add by Tamil Voice</ActionLink>}
+    {!amountOnly && <InlineVoiceBilling disabled={busy} />}
     {ready && (amountOnly ? <div className="card content-card">
       <div className="section-heading"><h2>Quick amount</h2><strong>{money(draft!.quickAmount!)}</strong></div>
       <Action type="button" tone="text" onClick={() => write({ quickAmount: null })} disabled={busy}>Remove Quick Amount</Action>
@@ -91,7 +92,7 @@ export default function BillEditor() {
       <ul>{items.map((line) => <BillLine key={line.id} line={line}
         edit={() => openEditor({ ...line, lineId: line.id, quantity: String(line.quantity / 1_000), price: rupeeInput(line.price) })}
         remove={() => write({ items: items.filter((item) => item.id !== line.id) })} />)}</ul>
-    </section> : <Empty title="Your bill is empty" detail="Add a product or enter a quick amount." icon={ReceiptText} />)}
+    </section> : <Empty title="Your bill is empty" detail="Add a product or enter a quick amount." art="bill-add-product.png" />)}
     {!panel && <ErrorMessage>{error}</ErrorMessage>}
     {draft && billTotal(draft) > 0 && <div className="card bill-preview">
       <div><small>Bill total</small><strong>{money(billTotal(draft))}</strong></div>

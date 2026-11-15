@@ -53,7 +53,7 @@ function ReviewForm({ draft }: { draft: NonNullable<ReturnType<typeof useStore>[
 
   return <>
     <PageTitle title="Review bill" description="Confirm the quantities and prices before collecting payment." back={{ href: "/bills/new", label: "Edit Bill" }} />
-    <Receipt draft={draft} />
+    <Receipt draft={draft} illustrated />
     <form className="card discount-form" onSubmit={(event) => act("apply", event)}>
       <Field label="Discount amount" prefix="₹" inputMode="decimal" value={discount} onChange={(event) => setDiscount(event.target.value)} />
       <Action type="submit" tone="secondary" disabled={busy}>Apply</Action>

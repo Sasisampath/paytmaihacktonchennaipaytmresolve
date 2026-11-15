@@ -1,3 +1,4 @@
+import { matchesDemoPayment, type DemoPaymentEvent } from "./demo-payment.ts";
 import { isDate } from "./issues.ts";
 import { MAX_PAISE, parsePaise } from "./money.ts";
 import { isClaim, verifyPayment, type Claim } from "./payment.ts";
@@ -9,14 +10,15 @@ export type Line = { id: string; productId?: string; name: string; unit: Unit; p
 export type Draft = {
   id: string; revision: number; items: Line[]; quickAmount: number | null; discount: number; voiceBatches?: string[];
 };
-export type Settlement = { method: "saved" } | { method: "cash" } | { method: "upi"; claim: Claim };
+export type Settlement = { method: "saved" } | { method: "cash" } |
+  { method: "upi"; claim: Claim } | { method: "demo"; event: DemoPaymentEvent };
 export type Bill = Draft & { savedAt: string; settlement: Settlement };
 
 export const catalogueSeed: readonly Product[] = [
   { id: "milk", name: "Milk packet", unit: "packet", price: 2_800 },
   { id: "rice", name: "Rice", unit: "kg", price: 6_400 },
   { id: "sugar", name: "Sugar", unit: "kg", price: 4_600 },
-  { id: "biscuit", name: "Biscuit", unit: "packet", price: 1_000 },
+  { id: "biscuit", name: "Biscuit", unit: "piece", price: 1_000 },
   { id: "bread", name: "Bread", unit: "packet", price: 4_000 },
   { id: "oil", name: "Oil", unit: "litre", price: 14_500 },
   { id: "chocolate", name: "Chocolate", unit: "piece", price: 2_000 },
@@ -126,6 +128,7 @@ export function isBill(value: unknown): value is Bill {
   const { savedAt, settlement } = value as Bill;
   if (!isDate(savedAt) || !settlement || typeof settlement !== "object") return false;
   if (settlement.method === "saved" || settlement.method === "cash") return true;
+  if (settlement.method === "demo") return matchesDemoPayment(settlement.event, value, billTotal(value));
   return settlement.method === "upi" && isClaim(settlement.claim) &&
     settlement.claim.amount === billTotal(value) && verifyPayment(settlement.claim).status === "received";
 }
@@ -147,6 +150,9 @@ export function finalizeBill(draft: Draft, bills: Bill[], settlement: Settlement
     if (bills.some((bill) => receiptRef(bill) === reference)) {
       throw new Error("This demo transaction is already linked to another bill.");
     }
+  }
+  if (settlement.method === "demo" && !matchesDemoPayment(settlement.event, draft, billTotal(draft))) {
+    throw new Error("The demo event does not match this bill and its current total.");
   }
   return { ...draft, savedAt: now, settlement };
 }

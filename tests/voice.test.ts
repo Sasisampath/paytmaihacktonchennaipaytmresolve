@@ -11,7 +11,7 @@ test("Tamil fixture preserves the four explicit quantities and catalogue IDs", (
   const review = sampleVoiceReview();
   assert.equal(isVoiceReview(review), true);
   assert.deepEqual(review.candidates.map(({ productId, unit, quantity }) => [productId, unit, quantity]), [
-    ["milk", "packet", 2000], ["biscuit", "packet", 3000], ["sugar", "kg", 1000], ["rice", "kg", 500],
+    ["milk", "packet", 2000], ["biscuit", "piece", 3000], ["sugar", "kg", 1000], ["rice", "kg", 500],
   ]);
 });
 
@@ -92,10 +92,14 @@ test("Sarvam adapter uses two documented requests, with structured extraction an
     }
     const body = JSON.parse(String(init?.body));
     assert.equal(body.model, "sarvam-105b");
+    assert.equal(body.reasoning_effort, "none");
     assert.equal(body.response_format.type, "json_schema");
+    assert.ok(body.response_format.json_schema.strict);
+    assert.deepEqual(body.response_format.json_schema.schema.properties.items.items.required,
+      ["productText", "quantityText", "unitText", "priceText", "priceBasisText", "evidenceText"]);
     assert.equal(body.messages[1].content, sampleTranscript);
     return Response.json({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({
-      items: [{ productText: "அரிசி", quantityText: "அரை", unitText: "கிலோ" }],
+      items: [{ productText: "அரிசி", quantityText: "அரை", unitText: "கிலோ", priceText: "", priceBasisText: "", evidenceText: "அரை கிலோ அரிசி" }],
     }) } }] });
   };
   const signal = new AbortController().signal;
@@ -105,6 +109,64 @@ test("Sarvam adapter uses two documented requests, with structured extraction an
   assert.equal(result.candidates[0].quantity, 500);
   await assert.rejects(recognizeVoice(audio, "audio/webm", "unit-test", signal,
     async () => new Response("private provider error", { status: 403 })), { status: 503 });
+});
+
+test("live-style Sarvam responses populate the same quantities with or without repeated modifiers", () => {
+  const transcript = "2 milk packet, 3 biscuit, 1 kg சர்க்கரை, 0.5 kg அரிசி.";
+  const clean = [
+    { productText: "milk packet", quantityText: "2", unitText: "" },
+    { productText: "biscuit", quantityText: "3", unitText: "" },
+    { productText: "சர்க்கரை", quantityText: "1", unitText: "kg" },
+    { productText: "அரிசி", quantityText: "0.5", unitText: "kg" },
+  ];
+  const repeated = [
+    { ...clean[0], productText: "2 milk packet", unitText: "packet" },
+    { ...clean[1], productText: "3 biscuit", unitText: "pieces" },
+    { ...clean[2], productText: "1 kg சர்க்கரை" },
+    { ...clean[3], productText: "0.5 kg அரிசி" },
+  ];
+  for (const items of [clean, repeated]) {
+    const rows = extractCandidates(transcript, { items });
+    assert.deepEqual(rows.map(({ productId, unit, quantity }) => [productId, unit, quantity]), [
+      ["milk", "packet", 2000], ["biscuit", "piece", 3000], ["sugar", "kg", 1000], ["rice", "kg", 500],
+    ]);
+  }
+  assert.deepEqual(extractCandidates(transcript, { items: [{ ...clean[0], productText: "2 cheese" }] }), []);
+  const [unknownUnit] = extractCandidates("3 boxes biscuit", { items: [{ ...clean[1], unitText: "boxes" }] });
+  assert.equal(unknownUnit.unit, null);
+  const [spokenUnit] = extractCandidates("3 packets biscuit", { items: [{ ...clean[1], unitText: "packets" }] });
+  assert.equal(spokenUnit.unit, "packet");
+});
+
+test("Sarvam failures identify credits, throttling, audio, network, and invalid extraction without exposing provider content", async () => {
+  const audio = new Blob([webm()], { type: "audio/webm" });
+  const signal = new AbortController().signal;
+  for (const [status, expected] of [[402, /no credits/], [429, /rate limited/], [415, /audio format/]] as const) {
+    await assert.rejects(recognizeVoice(audio, "audio/webm", "unit-test", signal,
+      async () => new Response("private provider error", { status })), { status, message: expected });
+  }
+  await assert.rejects(recognizeVoice(audio, "audio/webm", "unit-test", signal,
+    async () => { throw new TypeError("private connection detail"); }), { status: 502, message: /Could not reach Sarvam/ });
+  await assert.rejects(recognizeVoice(audio, "audio/webm", "unit-test", signal,
+    async () => Response.json({ transcript: "  " })), { status: 422, message: /No clear transcript/ });
+  await assert.rejects(recognizeVoice(audio, "audio/webm", "unit-test", signal, async (url) =>
+    String(url).endsWith("/speech-to-text") ? Response.json({ transcript: "2 milk" }) :
+      Response.json({ choices: [{ finish_reason: "stop", message: { content: "null" } }] })),
+  { status: 422, message: /No clear products/ });
+});
+
+test("voice POST accepts the browser origin when Next.js normalizes the loopback URL", async () => {
+  const upload = (origin: string) => new Request("http://localhost:3000/api/voice", {
+    method: "POST", body: "not audio", headers: { host: "127.0.0.1:3000", origin, "content-type": "text/plain" },
+  });
+  const previous = process.env.SARVAM_API_KEY;
+  delete process.env.SARVAM_API_KEY;
+  try {
+    assert.equal((await POST(upload("http://127.0.0.1:3000"))).status, 503);
+    assert.equal((await POST(upload("http://localhost:3000"))).status, 403);
+  } finally {
+    if (previous !== undefined) process.env.SARVAM_API_KEY = previous;
+  }
 });
 
 test("voice route reports missing credentials and throttles repeated configured uploads", async () => {

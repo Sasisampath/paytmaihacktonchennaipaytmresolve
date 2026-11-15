@@ -1,12 +1,15 @@
 "use client";
 
 import { Pencil, Trash2 } from "lucide-react";
+import { useId } from "react";
 import { billNumber, billTotal, lineTotal, quantityText, subtotal, type Bill, type Draft, type Line, type Unit, units } from "../lib/billing";
 import { money } from "../lib/money";
+import { PaytmArt } from "./paytm-art";
 import { Pill } from "./ui";
 
-export function UnitField({ value, onChange }: { value: Unit | ""; onChange: (unit: Unit | "") => void }) {
-  return <label className="field"><span>Unit</span><span className="field-control"><select value={value} onChange={(event) => onChange(event.target.value as Unit | "")}>
+export function UnitField({ value, onChange, invalid }: { value: Unit | ""; onChange: (unit: Unit | "") => void; invalid?: boolean }) {
+  const labelId = useId();
+  return <label className="field"><span id={labelId}>Unit</span><span className="field-control"><select aria-labelledby={labelId} value={value} aria-invalid={invalid} onChange={(event) => onChange(event.target.value as Unit | "")}>
     {value === "" && <option value="">Choose a unit</option>}
     {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
   </select></span></label>;
@@ -23,9 +26,9 @@ export function BillLine({ line, edit, remove }: { line: Line; edit?: () => void
   </li>;
 }
 
-export function Receipt({ draft }: { draft: Draft }) {
+export function Receipt({ draft, illustrated = false }: { draft: Draft; illustrated?: boolean }) {
   return <section className="card receipt">
-    <div className="receipt-header"><h2>{draft.quickAmount === null ? "Bill details" : "Amount-only bill"}</h2></div>
+    <div className="receipt-header"><h2>{draft.quickAmount === null ? "Bill details" : "Amount-only bill"}</h2>{illustrated && <PaytmArt file="bill-receipt.png" size={41} />}</div>
     {draft.quickAmount === null ? <ul>{draft.items.map((line) => <BillLine key={line.id} line={line} />)}</ul> :
       <div className="bill-line"><span>Quick amount</span><strong>{money(draft.quickAmount)}</strong></div>}
     <dl className="detail-list receipt-totals">

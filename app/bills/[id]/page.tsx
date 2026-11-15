@@ -46,7 +46,8 @@ export default function BillDetails() {
     <Receipt draft={bill} />
     <section className="card content-card settlement">
       <div className="section-heading"><h2>Payment</h2><BillPill bill={bill} /></div>
-      <p>{settlement.method === "cash" ? "Cash recorded by merchant" : settlement.method === "upi" ? "Simulated payment verification" : "Payment collection is still open."}</p>
+      <p>{settlement.method === "cash" ? "Cash recorded by merchant" : settlement.method === "upi" ? "Simulated payment verification" : settlement.method === "demo" ? "Demo Transaction · Simulated provider confirmation" : "Payment collection is still open."}</p>
+      {settlement.method === "demo" && <p className="demo-reference">{settlement.event.reference}</p>}
     </section>
     {settlement.method === "upi" && <PaymentResult claim={settlement.claim} verification={verifyPayment(settlement.claim)} />}
     <ErrorMessage>{error}</ErrorMessage>
