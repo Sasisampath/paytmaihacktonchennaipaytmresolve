@@ -5,8 +5,9 @@ import { billNumber, billTotal, lineTotal, quantityText, subtotal, type Bill, ty
 import { money } from "../lib/money";
 import { Pill } from "./ui";
 
-export function UnitField({ value, onChange }: { value: Unit; onChange: (unit: Unit) => void }) {
-  return <label className="field"><span>Unit</span><span className="field-control"><select value={value} onChange={(event) => onChange(event.target.value as Unit)}>
+export function UnitField({ value, onChange }: { value: Unit | ""; onChange: (unit: Unit | "") => void }) {
+  return <label className="field"><span>Unit</span><span className="field-control"><select value={value} onChange={(event) => onChange(event.target.value as Unit | "")}>
+    {value === "" && <option value="">Choose a unit</option>}
     {units.map((unit) => <option key={unit} value={unit}>{unit}</option>)}
   </select></span></label>;
 }

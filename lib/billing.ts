@@ -7,7 +7,7 @@ export type Unit = typeof units[number];
 export type Product = { id: string; name: string; unit: Unit; price: number };
 export type Line = { id: string; productId?: string; name: string; unit: Unit; price: number; quantity: number };
 export type Draft = {
-  id: string; revision: number; items: Line[]; quickAmount: number | null; discount: number;
+  id: string; revision: number; items: Line[]; quickAmount: number | null; discount: number; voiceBatches?: string[];
 };
 export type Settlement = { method: "saved" } | { method: "cash" } | { method: "upi"; claim: Claim };
 export type Bill = Draft & { savedAt: string; settlement: Settlement };
@@ -99,11 +99,12 @@ export function newDraft(id: string): Draft {
 export function isDraft(value: unknown): value is Draft {
   if (!value || typeof value !== "object") return false;
   const draft = value as Draft;
-  const { id, revision, items, quickAmount, discount } = draft;
+  const { id, revision, items, quickAmount, discount, voiceBatches } = draft;
   if (!isId(id) || !Number.isSafeInteger(revision) || revision < 0 || !Array.isArray(items) ||
       items.length > maxLines || !items.every(isLine) || new Set(items.map((item) => item.id)).size !== items.length ||
       (quickAmount !== null && (!isPrice(quickAmount) || items.length > 0)) ||
-      !Number.isSafeInteger(discount) || discount < 0) return false;
+      !Number.isSafeInteger(discount) || discount < 0 ||
+      (voiceBatches !== undefined && (!Array.isArray(voiceBatches) || voiceBatches.length > 100 || !voiceBatches.every(isId)))) return false;
   const sum = subtotal(draft);
   return sum <= MAX_PAISE && discount <= Math.max(0, sum - 1);
 }

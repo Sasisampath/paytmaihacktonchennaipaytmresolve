@@ -1,6 +1,6 @@
 "use client";
 
-import { Calculator, ChevronRight, Pencil, Plus, ReceiptText, Search } from "lucide-react";
+import { Calculator, ChevronRight, Mic, Pencil, Plus, ReceiptText, Search } from "lucide-react";
 import { useRef, useState, type FormEvent } from "react";
 import { BillLine, UnitField } from "../../../components/bill-ui";
 import { Action, ActionLink, DemoNote, Empty, ErrorMessage, Field, PageTitle, Sheet, errorText } from "../../../components/ui";
@@ -82,6 +82,7 @@ export default function BillEditor() {
       <Action type="button" onClick={() => { setQuery(""); openPanel("products"); }} disabled={!ready || amountOnly || busy}><Plus size={17} /> Add Product</Action>
       <Action type="button" tone="secondary" onClick={() => { setQuick(amountOnly ? rupeeInput(draft!.quickAmount!) : ""); openPanel("quick"); }} disabled={!ready || items.length > 0 || busy}><Calculator size={17} /> Quick Amount</Action>
     </div>
+    {!amountOnly && <ActionLink href="/bills/new/voice" tone="secondary" className="voice-entry full-action"><Mic size={17} /> Add by Tamil Voice</ActionLink>}
     {ready && (amountOnly ? <div className="card content-card">
       <div className="section-heading"><h2>Quick amount</h2><strong>{money(draft!.quickAmount!)}</strong></div>
       <Action type="button" tone="text" onClick={() => write({ quickAmount: null })} disabled={busy}>Remove Quick Amount</Action>
@@ -114,7 +115,7 @@ export default function BillEditor() {
         <Field label="Product name" maxLength={70} value={editor.name} onChange={(event) => setEditor({ ...editor, name: event.target.value })} required />
         <div className="fields-two">
           {!editor.catalogueId && <Field label="Quantity" inputMode="decimal" value={editor.quantity} onChange={(event) => setEditor({ ...editor, quantity: event.target.value })} required />}
-          <UnitField value={editor.unit} onChange={(unit) => setEditor({ ...editor, unit })} />
+          <UnitField value={editor.unit} onChange={(unit) => { if (unit) setEditor({ ...editor, unit }); }} />
         </div>
         <Field label="Selling price per unit" inputMode="decimal" prefix="₹" value={editor.price} onChange={(event) => setEditor({ ...editor, price: event.target.value })} required />
         <ErrorMessage>{error}</ErrorMessage>

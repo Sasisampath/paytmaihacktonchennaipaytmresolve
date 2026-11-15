@@ -24,7 +24,7 @@ export function resumeBill(store: Store, id: string): Store {
   const bill = store.bills.find((entry) => entry.id === id && entry.settlement.method === "saved");
   if (!bill) throw new Error("This saved bill is no longer available to edit.");
   const draft: Draft = {
-    id: bill.id, revision: bill.revision + 1, items: bill.items, quickAmount: bill.quickAmount, discount: bill.discount,
+    id: bill.id, revision: bill.revision + 1, items: bill.items, quickAmount: bill.quickAmount, discount: bill.discount, voiceBatches: bill.voiceBatches,
   };
   return { ...store, draft, bills: store.bills.filter((entry) => entry.id !== id) };
 }

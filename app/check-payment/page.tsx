@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { Action, DemoDate, DemoNote, ErrorMessage, Field, PageTitle, Pill, errorText } from "../../components/ui";
 import { clockTime, exampleChecks, isReference, isTime, labels } from "../../lib/payment";
 import { money, parsePaise, rupeeInput } from "../../lib/money";
-import { readClaim, writeClaim } from "../../lib/check-session";
+import { writeClaim } from "../../lib/check-session";
 
 const empty = { amount: "", time: "", reference: "" };
 
@@ -49,12 +49,6 @@ export default function CheckPayment() {
         <Pill status={example.status} /><ArrowRight size={14} />
       </button>)}
     </details>
-    <Action type="button" tone="text" onClick={() => {
-      const claim = readClaim();
-      if (!claim) return setError("Run a check to save the last entered details.");
-      setValues({ ...claim, amount: rupeeInput(claim.amount) });
-      setError("");
-    }}>Use last checked details</Action>
     <DemoNote>Demo records only. Screenshots cannot confirm receipt.</DemoNote>
   </>;
 }
