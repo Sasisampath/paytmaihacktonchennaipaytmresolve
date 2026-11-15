@@ -157,3 +157,43 @@ a.list-row:hover, a.stat:hover { background: #f5faff; }
 @media (min-width: 520px) {
   .app-shell { box-shadow: 0 0 42px #1f376310; }
 }
+
+.secondary-action { display: flex; align-items: center; padding: 12px; gap: 9px; min-height: 70px; }
+.secondary-action:hover { background: #f4faff; }
+.secondary-icon { display: grid; place-items: center; color: #155798; background: #eaf6ff; border-radius: 10px; width: 37px; height: 37px; flex: none; }
+.secondary-copy { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.secondary-copy strong { font-size: 14px; line-height: 1.23; font-weight: 740; }
+.secondary-copy small { color: var(--muted); font-size: 11px; line-height: 1.35; }
+.secondary-cta { display: flex; align-items: center; gap: 3px; white-space: nowrap; color: var(--navy); background: #edf3ff; border-radius: 8px; padding: 7px; font-size: 10px; font-weight: 730; }
+.section-heading > a { display: inline-flex; align-items: center; gap: 3px; min-height: 25px; }
+.home-empty { min-height: 57px; }
+.bill-tools, .fields-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.product-picker, .sheet-form { display: grid; gap: 10px; }
+.catalogue-list { max-height: 33dvh; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; }
+.catalogue-list li { display: flex; align-items: center; padding-right: 3px; }
+.catalogue-list li + li { border-top: 1px solid var(--border); }
+.catalogue-pick { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; text-align: left; gap: 7px; min-height: 40px; padding: 5px 9px; font-weight: 650; font-size: 13px; }
+.catalogue-pick:hover { background: #eef5ff; }
+.catalogue-pick small { color: var(--muted); font-size: 11px; white-space: nowrap; font-weight: 520; }
+.receipt-header, .bill-preview, .discount-form, .collection-total { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 13px; }
+.receipt-header { font-weight: 750; }
+.receipt-header span { font-size: 11px; color: var(--muted); }
+.bill-line { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--border); font-size: 13px; }
+.bill-line > :first-child { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.bill-line > strong { flex: none; }
+.bill-line-name small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+.line-controls { display: flex; gap: 2px; flex: none; }
+.line-controls .icon-button { min-width: 35px; min-height: 40px; }
+.line-controls .remove { color: #a92132; }
+.bill-preview > div { display: grid; gap: 2px; }
+.bill-preview small, .collection-total span { color: var(--muted); font-size: 11px; font-weight: 650; }
+.bill-preview strong, .collection-total strong { font-size: 23px; letter-spacing: -.6px; color: var(--navy); }
+.receipt-totals { border-top: 1px solid var(--border); padding: 12px; }
+.grand-total { padding-top: 8px; margin-top: 2px; border-top: 1px dashed #cdd9ea; }
+.grand-total dt, .grand-total dd { color: var(--navy); font-size: 16px; font-weight: 750; }
+.discount-form { align-items: end; }
+.discount-form .field { flex: 1; }
+.segments button { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.content-card > p { color: #52627a; font-size: 13px; line-height: 1.5; }
+.form-card h2 { font-weight: 730; }
+.full-action { width: 100%; }

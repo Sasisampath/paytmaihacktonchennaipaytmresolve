@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, CircleAlert, FlaskConical, ReceiptText, X, type LucideIcon } from "lucide-react";
-import { useEffect, useRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode } from "react";
 import { labels, ledgerDate, type Status } from "../lib/payment";
 
 export function Action({ tone = "primary", className = "", ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { tone?: "primary" | "secondary" | "text" }) {
@@ -29,10 +29,11 @@ export function Pill({ status, children }: { status: Status | "open" | "closed" 
 }
 
 export function Field({ label, hint, prefix, ...props }: InputHTMLAttributes<HTMLInputElement> & { label: string; hint?: string; prefix?: string }) {
+  const id = useId();
   return <label className="field">
-    <span>{label}</span>
-    <span className="field-control">{prefix && <span className="prefix" aria-hidden="true">{prefix}</span>}<input {...props} /></span>
-    {hint && <small>{hint}</small>}
+    <span id={`${id}-label`}>{label}</span>
+    <span className="field-control">{prefix && <span className="prefix" aria-hidden="true">{prefix}</span>}<input aria-labelledby={`${id}-label`} aria-describedby={hint ? `${id}-hint` : undefined} {...props} /></span>
+    {hint && <small id={`${id}-hint`}>{hint}</small>}
   </label>;
 }
 

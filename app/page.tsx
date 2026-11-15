@@ -1,14 +1,16 @@
 "use client";
 
-import { ArrowDownLeft, ArrowRight, Check, ClipboardList, Clock3, ScanLine, Store } from "lucide-react";
+import { ArrowDownLeft, ArrowRight, Check, ClipboardList, Clock3, Plus, ReceiptText, ScanLine, Store } from "lucide-react";
 import Link from "next/link";
+import { BillLabel, BillPill } from "../components/bill-ui";
+import { billTotal } from "../lib/billing";
 import { DemoNote, Pill } from "../components/ui";
 import { useStore } from "../lib/browser-store";
 import { clockTime, ledger } from "../lib/payment";
 import { money } from "../lib/money";
 
 export default function Home() {
-  const { issues } = useStore();
+  const { issues, bills } = useStore();
   const open = issues.filter((issue) => issue.state === "open").length;
   const received = ledger.filter((record) => record.status === "received");
   return <div className="home">
@@ -26,6 +28,11 @@ export default function Home() {
         </div>
         <span className="hero-art" aria-hidden="true"><span className="art-ring ring-outer" /><span className="art-ring ring-inner" /><span className="art-dot" /><span className="art-scan"><ScanLine size={70} strokeWidth={1.1} /><span className="art-check"><Check size={22} strokeWidth={2.8} /></span></span></span>
       </Link>
+      <Link className="card secondary-action" href="/bills/new">
+        <span className="secondary-icon"><ReceiptText size={21} /></span>
+        <span className="secondary-copy"><strong>Create a Bill</strong><small>Add products manually or by speaking Tamil.</small></span>
+        <span className="secondary-cta"><Plus size={15} /> <span>Create Bill</span></span>
+      </Link>
     </section>
     <section className="home-overview" aria-labelledby="overview-heading">
       <div className="section-heading"><h2 id="overview-heading">Merchant overview</h2><span>13 Nov 2026 ledger</span></div>
@@ -34,10 +41,19 @@ export default function Home() {
         <Link href="/issues" className="card stat"><i className="stat-amber"><ClipboardList size={15} /></i><strong>{open}</strong><span>Open issues</span></Link>
       </div>
     </section>
+    <section aria-labelledby="bills-heading">
+      <div className="section-heading"><h2 id="bills-heading">Recent bills</h2><Link href="/bills">View history <ArrowRight size={12} /></Link></div>
+      <div className="card list">
+        {bills.length ? bills.slice(0, 2).map((bill) => <Link key={bill.id} href={`/bills/${bill.id}`} className="list-row">
+          <i className="row-icon"><ReceiptText size={16} /></i><div className="row-body"><BillLabel bill={bill} /></div>
+          <div className="row-end"><strong>{money(billTotal(bill))}</strong><BillPill bill={bill} /></div>
+        </Link>) : <div className="list-row home-empty"><i className="row-icon"><ReceiptText size={17} /></i><div className="row-body"><strong>No bills yet</strong><small>Saved bills will appear here.</small></div></div>}
+      </div>
+    </section>
     <section aria-labelledby="activity-heading">
       <div className="section-heading"><h2 id="activity-heading">Recent payment activity</h2></div>
       <div className="card list">
-        {[ledger[0], ledger[1], ledger[2]].map((record) => <div className="list-row" key={record.id}>
+        {[ledger[2], ledger[1], ledger[0]].map((record) => <div className="list-row" key={record.id}>
           <i className={record.status === "received" ? "row-icon green" : "row-icon"}>{record.status === "received" ? <ArrowDownLeft size={18} /> : <Clock3 size={17} />}</i>
           <div className="row-body"><strong>UPI payment</strong><small>{clockTime(record.time)} · {record.id}</small></div>
           <div className="row-end"><strong>{money(record.amount)}</strong><Pill status={record.status} /></div>
